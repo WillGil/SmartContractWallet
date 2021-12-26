@@ -12,10 +12,10 @@ contract Wallet is Ownable {
     address[] historialDepositers;
 
     // Deposit event so we can listen for deposits
-    event deposit(address indexed user, uint256 etherAmount, uint256 time);
-    event withdraw(address indexed user, uint256 etherAmount, uint256 time);
+    event deposit(address indexed user, uint256 etherAmount);
+    event withdraw(address indexed user, uint256 etherAmount);
 
-    constructor() payable {}
+    constructor() {}
 
     receive() external payable {
         currentDeposits[msg.sender] += msg.value;
@@ -24,14 +24,14 @@ contract Wallet is Ownable {
         historialDeposits[msg.sender] += msg.value;
         historialDepositers.push(msg.sender);
 
-        emit deposit(msg.sender, msg.value, block.timestamp);
+        emit deposit(msg.sender, msg.value);
     }
 
     function withdrawFunds() external onlyOwner {
         uint256 balance = address(this).balance;
         //Send the money back to the owner
         payable(msg.sender).transfer(balance);
-        emit withdraw(msg.sender, balance, block.timestamp);
+        emit withdraw(msg.sender, balance);
 
         // Delete all records for current deposits
         resetCurrentBalance();
@@ -41,12 +41,20 @@ contract Wallet is Ownable {
         return address(this).balance;
     }
 
-    function getAmountUserSentSinceLastWithdraw(address _address)
+    function getCurrentDeposits(address _address)
         external
         view
         returns (uint256)
     {
         return currentDeposits[_address];
+    }
+
+    function getOverallDeposits(address _address)
+        external
+        view 
+        returns(uint256)
+    {
+        return historialDeposits[_address];
     }
 
     function resetCurrentBalance() internal onlyOwner {
