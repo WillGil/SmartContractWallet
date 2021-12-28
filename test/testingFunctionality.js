@@ -81,9 +81,20 @@ describe("Wallet contract", function () {
         await expect(tx).to.be.revertedWith("Ownable: caller is not the owner");  
       })
 
+      it("Check that withdraw resets the current balances mapping", async function(){
 
+        await wallet.withdrawFunds();
 
-      it("Check that withdraw resets the current balances mapping")
+        const historialBalance = await wallet.getOverallDeposits(addr1.address);
+        expect(historialBalance).to.equal(oneEther);
+
+        const currentBalance = await wallet.getCurrentDeposits(addr1.address);
+
+        console.log(currentBalance);
+        expect(currentBalance).to.equal(0);
+
+      })
+
     })
 
     
